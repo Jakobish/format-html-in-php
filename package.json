@@ -84,40 +84,20 @@
           "default": true,
           "description": "Preserve ASP server-side comments (<% ' ... %> and <%-- ... --%>)"
         },
-        "formatHtmlInAsp.detectAspLanguage": {
-          "type": "boolean",
-          "default": false,
-          "description": "Auto-detect VBScript vs JScript inside ASP blocks (VBScript-focused: off by default)"
-        },
         "formatHtmlInAsp.formatVbscriptInAspBlocks": {
           "type": "boolean",
           "default": true,
           "description": "Attempt to format VBScript inside <% ... %> blocks"
-        },
-        "formatHtmlInAsp.formatJscriptInAspBlocks": {
-          "type": "boolean",
-          "default": false,
-          "description": "Attempt to format JScript inside <% ... %> blocks"
         },
         "formatHtmlInAsp.vbscriptIndentSize": {
           "type": "number",
           "default": 4,
           "description": "Indent size for VBScript when formatting ASP blocks"
         },
-        "formatHtmlInAsp.jscriptIndentSize": {
-          "type": "number",
-          "default": 2,
-          "description": "Indent size for JScript when formatting ASP blocks"
-        },
         "formatHtmlInAsp.vbscriptAlignAssignments": {
           "type": "boolean",
           "default": false,
           "description": "Align '=' in consecutive VBScript assignments"
-        },
-        "formatHtmlInAsp.jscriptSemicolons": {
-          "type": "boolean",
-          "default": true,
-          "description": "Insert semicolons in JScript formatting when missing"
         },
         "formatHtmlInAsp.maxLineLength": {
           "type": "number",

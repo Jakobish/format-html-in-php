@@ -2,7 +2,6 @@
 
 var beautifyHtml = require('js-beautify').html;
 import beautifyVbscript from './beautifyVbscript';
-import beautifyJscript from './beautifyJscript';
 
 // Tokenize to safely extract ASP blocks even when '%>' appears inside strings
 function extractAspBlocks(text: string, options: any) {
@@ -90,134 +89,6 @@ function shouldPreserveBlock(type, options) {
   }
 }
 
-function detectAspLanguage(code: string): 'vbscript' | 'jscript' | 'unknown' {
-  if (!code.trim()) return 'unknown';
-
-  const lowerCode = code.toLowerCase();
-
-  // Check for explicit language directives first
-  if (lowerCode.includes('@language="vbscript"') || lowerCode.includes("@language='vbscript'")) {
-    return 'vbscript';
-  }
-  if (lowerCode.includes('@language="jscript"') || lowerCode.includes("@language='jscript'") ||
-      lowerCode.includes('@language="javascript"') || lowerCode.includes("@language='javascript'")) {
-    return 'jscript';
-  }
-
-  // Enhanced VBScript indicators with weights
-  const vbscriptIndicators = [
-    { pattern: /\bdim\s+\w/i, weight: 3 },
-    { pattern: /\bset\s+\w+\s*=/i, weight: 3 },
-    { pattern: /\bfunction\s+\w+\s*\(/i, weight: 3 },
-    { pattern: /\bsub\s+\w+\s*\(/i, weight: 3 },
-    { pattern: /\bif\s+.*\bthen\b/i, weight: 3 },
-    { pattern: /\bselect\s+case\b/i, weight: 3 },
-    { pattern: /\bfor\s+.*\bto\b/i, weight: 3 },
-    { pattern: /\bwhile\b/i, weight: 2 },
-    { pattern: /\bwend\b/i, weight: 2 },
-    { pattern: /\bnext\b/i, weight: 2 },
-    { pattern: /\bcreateobject\b/i, weight: 3 },
-    { pattern: /\bserver\./i, weight: 3 },
-    { pattern: /\bresponse\./i, weight: 3 },
-    { pattern: /\brequest\./i, weight: 3 },
-    { pattern: /\bsession\./i, weight: 3 },
-    { pattern: /\bapplication\./i, weight: 3 },
-    { pattern: /\bado/i, weight: 2 },
-    { pattern: /\bfilesystemobject\b/i, weight: 2 },
-    { pattern: /\bend\s+(if|function|sub|select|class|with)\b/i, weight: 2 },
-    { pattern: /\boption\s+explicit\b/i, weight: 2 },
-    { pattern: /\bon\s+error\b/i, weight: 2 },
-    { pattern: /\berror\b/i, weight: 1 },
-    { pattern: /\bcall\s+\w/i, weight: 2 },
-    { pattern: /\bexit\s+(function|sub|do|for)\b/i, weight: 2 }
-  ];
-
-  // Enhanced JScript indicators with weights
-  const jscriptIndicators = [
-    { pattern: /\bvar\s+\w+\s*=/i, weight: 3 },
-    { pattern: /\blet\s+\w+\s*=/i, weight: 3 },
-    { pattern: /\bconst\s+\w+\s*=/i, weight: 3 },
-    { pattern: /\bfunction\s+\w+\s*\(/i, weight: 3 },
-    { pattern: /\w+\s*\([^)]*\)\s*\{/i, weight: 3 },
-    { pattern: /\bif\s*\(/i, weight: 3 },
-    { pattern: /\bfor\s*\(/i, weight: 3 },
-    { pattern: /\bwhile\s*\(/i, weight: 3 },
-    { pattern: /\btry\s*\{/i, weight: 3 },
-    { pattern: /\bcatch\s*\(/i, weight: 3 },
-    { pattern: /\w+\.\w+\s*\(/i, weight: 2 },
-    { pattern: /\bnew\s+\w+/i, weight: 3 },
-    { pattern: /\bthis\./i, weight: 2 },
-    { pattern: /\bprototype\b/i, weight: 2 },
-    { pattern: /\btypeof\b/i, weight: 2 },
-    { pattern: /\binstanceof\b/i, weight: 2 },
-    { pattern: /\belse\s*\{/i, weight: 2 },
-    { pattern: /\}\s*else\b/i, weight: 2 },
-    { pattern: /\breturn\b/i, weight: 2 },
-    { pattern: /\bbreak\b/i, weight: 2 },
-    { pattern: /\bcontinue\b/i, weight: 2 },
-    { pattern: /\w+\+\+|\+\+\w+/i, weight: 2 },
-    { pattern: /\w+--|--\w+/i, weight: 2 },
-    { pattern: /==|!=|===|!==/i, weight: 2 },
-    { pattern: /&&|\|\|/i, weight: 2 }
-  ];
-
-  let vbscriptScore = 0;
-  let jscriptScore = 0;
-
-  // Count VBScript indicators with weights
-  vbscriptIndicators.forEach(indicator => {
-    if (indicator.pattern.test(lowerCode)) {
-      vbscriptScore += indicator.weight;
-    }
-  });
-
-  // Count JScript indicators with weights
-  jscriptIndicators.forEach(indicator => {
-    if (indicator.pattern.test(lowerCode)) {
-      jscriptScore += indicator.weight;
-    }
-  });
-
-  // Additional heuristics
-  // Check for semicolon usage (JScript)
-  const semicolonCount = (code.match(/;/g) || []).length;
-  const linesCount = code.split('\n').length;
-  if (semicolonCount > linesCount * 0.5) {
-    jscriptScore += 2;
-  }
-
-  // Check for comment styles
-  if (code.includes('//')) {
-    jscriptScore += 2;
-  }
-  if (code.includes("'")) {
-    vbscriptScore += 2;
-  }
-
-  // Check for ASP-specific patterns
-  if (lowerCode.includes('response.write') || lowerCode.includes('request.')) {
-    // Could be either, but slightly favor VBScript for Classic ASP
-    vbscriptScore += 1;
-  }
-
-  // Determine language based on scores with a threshold
-  const scoreDifference = Math.abs(vbscriptScore - jscriptScore);
-  const minScoreThreshold = 3;
-
-  if (vbscriptScore > jscriptScore && vbscriptScore >= minScoreThreshold) {
-    return 'vbscript';
-  } else if (jscriptScore > vbscriptScore && jscriptScore >= minScoreThreshold) {
-    return 'jscript';
-  } else if (scoreDifference < 2 && (vbscriptScore > 0 || jscriptScore > 0)) {
-    // Close scores, default to VBScript for Classic ASP compatibility
-    return 'vbscript';
-  } else if (vbscriptScore > 0 || jscriptScore > 0) {
-    // Some indicators found but not conclusive
-    return vbscriptScore >= jscriptScore ? 'vbscript' : 'jscript';
-  }
-
-  return 'unknown';
-}
 
 function formatAspBlock(content: string, options: any): string {
   // Check if formatting is enabled for ASP blocks
@@ -247,23 +118,9 @@ function formatAspBlock(content: string, options: any): string {
 
   if (!code.trim()) return content;
 
-  // Detect language if auto-detection is enabled
-  let language: 'vbscript' | 'jscript' | 'unknown' = 'unknown';
-  if (options.detectAspLanguage !== false) {
-    language = detectAspLanguage(code);
-  } else {
-    // Fallback to manual settings
-    if (options.formatVbscriptInAspBlocks) {
-      language = 'vbscript';
-    } else if (options.formatJscriptInAspBlocks) {
-      language = 'jscript';
-    }
-  }
-
+  // VBScript-only formatting path
   let formattedCode = code;
-
-  // Apply appropriate formatter based on detected language
-  if (language === 'vbscript' && options.formatVbscriptInAspBlocks) {
+  if (options.formatVbscriptInAspBlocks) {
     try {
       formattedCode = beautifyVbscript(code, {
         indentSize: options.vbscriptIndentSize || 4,
@@ -275,21 +132,6 @@ function formatAspBlock(content: string, options: any): string {
     } catch (error) {
       // If formatting fails, keep original code
       console.warn('VBScript formatting failed:', error.message);
-      formattedCode = code;
-    }
-  } else if (language === 'jscript' && options.formatJscriptInAspBlocks) {
-    try {
-      formattedCode = beautifyJscript(code, {
-        indentSize: options.jscriptIndentSize || 2,
-        indentChar: options.indentChar || ' ',
-        semicolons: options.jscriptSemicolons !== false,
-        alignAssignments: options.jscriptAlignAssignments || false,
-        preserveAspComments: options.preserveAspComments !== false,
-        maxLineLength: options.maxLineLength || 100
-      });
-    } catch (error) {
-      // If formatting fails, keep original code
-      console.warn('JScript formatting failed:', error.message);
       formattedCode = code;
     }
   }
