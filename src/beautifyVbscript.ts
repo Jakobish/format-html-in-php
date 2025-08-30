@@ -43,7 +43,7 @@ export default function beautifyVbscript(code: string, options: VbscriptOptions)
   const indentKeywords = /^(if|for|while|do|function|sub|class|with|select|property|try)\b/i;
 
   // Keywords that decrease indentation
-  const outdentKeywords = /^(else|end|next|loop|wend|catch|finally)\b/i;
+  const outdentKeywords = /^(else|elseif|end|next|loop|wend|catch|finally)\b/i;
 
   // Keywords that handle same line structures
   const sameLineKeywords = /^(then|else)\b/i;
@@ -131,6 +131,11 @@ export default function beautifyVbscript(code: string, options: VbscriptOptions)
     // Handle same line keywords (like If ... Then)
     if (sameLineKeywords.test(line)) {
       formattedLine = indent.repeat(context.indentLevel) + line;
+    }
+
+    // Treat Else/ElseIf as middle-of-block: next line should be indented
+    if (/^(else|elseif)\b/i.test(line)) {
+      context.pendingIndentIncrease = true;
     }
 
     // Handle multi-line structures

@@ -99,6 +99,11 @@
           "default": true,
           "description": "Attempt to format VBScript inside <% ... %> blocks"
         },
+        "formatHtmlInAsp.vbscriptConvertTabsToSpaces": {
+          "type": "boolean",
+          "default": true,
+          "description": "Convert leading tabs to spaces inside VBScript ASP blocks"
+        },
         "formatHtmlInAsp.vbscriptIndentSize": {
           "type": "number",
           "default": 4,
@@ -113,6 +118,11 @@
           "type": "number",
           "default": 120,
           "description": "Maximum line length for ASP block formatters before line breaks"
+        },
+        "formatHtmlInAsp.normalizeScriptClose": {
+          "type": "boolean",
+          "default": true,
+          "description": "Ensure </script> is placed on its own line (no JS reflow)"
         },
         "formatHtmlInAsp.supportedLanguages": {
           "type": "array",

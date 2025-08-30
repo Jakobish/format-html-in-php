@@ -62,10 +62,13 @@ export default function(config) {
     preserveComplexExpressions: true,
     // ASP language/formatting options (VBScript only)
     formatVbscriptInAspBlocks: config.get('formatHtmlInAsp.formatVbscriptInAspBlocks') !== undefined ? config.get('formatHtmlInAsp.formatVbscriptInAspBlocks') : true,
+    vbscriptConvertTabsToSpaces: config.get('formatHtmlInAsp.vbscriptConvertTabsToSpaces') !== undefined ? config.get('formatHtmlInAsp.vbscriptConvertTabsToSpaces') : true,
     vbscriptIndentSize: config.get('formatHtmlInAsp.vbscriptIndentSize') !== undefined ? config.get('formatHtmlInAsp.vbscriptIndentSize') : 4,
     // Advanced formatting options
     vbscriptAlignAssignments: config.get('formatHtmlInAsp.vbscriptAlignAssignments') !== undefined ? config.get('formatHtmlInAsp.vbscriptAlignAssignments') : false,
-    maxLineLength: config.get('formatHtmlInAsp.maxLineLength') !== undefined ? config.get('formatHtmlInAsp.maxLineLength') : 120
+    maxLineLength: config.get('formatHtmlInAsp.maxLineLength') !== undefined ? config.get('formatHtmlInAsp.maxLineLength') : 120,
+    // HTML/script normalization
+    normalizeScriptClose: config.get('formatHtmlInAsp.normalizeScriptClose') !== undefined ? config.get('formatHtmlInAsp.normalizeScriptClose') : true
   };
 
   return options;

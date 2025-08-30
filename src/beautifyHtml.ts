@@ -101,13 +101,13 @@ function formatAspBlock(content: string, options: any): string {
 
   // Extract code from ASP delimiters based on block type
   if (content.startsWith('<%=')) {
-    const match = content.match(/^<%=(.*)%>$/);
+    const match = content.match(/^<%=([\s\S]*)%>$/);
     if (match) {
       code = match[1];
       prefix = '<%=';
     }
   } else if (content.startsWith('<%')) {
-    const match = content.match(/^<%(.*)%>$/);
+    const match = content.match(/^<%([\s\S]*)%>$/);
     if (match) {
       code = match[1];
     }
@@ -133,6 +133,15 @@ function formatAspBlock(content: string, options: any): string {
       // If formatting fails, keep original code
       console.warn('VBScript formatting failed:', error.message);
       formattedCode = code;
+    }
+    // Optionally convert leading tabs to spaces (whitespace-only)
+    if (options.vbscriptConvertTabsToSpaces !== false) {
+      const size = options.vbscriptIndentSize || 4;
+      const spaces = ' '.repeat(size);
+      formattedCode = formattedCode
+        .split('\n')
+        .map((ln: string) => ln.replace(/^\t+/g, (m) => spaces.repeat(m.length)))
+        .join('\n');
     }
   }
 
@@ -256,6 +265,12 @@ function postProcessAspContent(content: string, options: any): string {
   // Improve readability when ASP placeholders appear between tags
   // Keep this conservative to avoid altering attribute values.
   content = content.replace(/(>)\s*(__ASP_BLOCK_\d+__)\s*(<)/g, '$1\n$2\n$3');
+
+  // Normalize closing script tag to be on its own line (no JS reflow)
+  if (options && options.normalizeScriptClose !== false) {
+    // Insert a newline before </script> if there is any non-newline content before it on the same line
+    content = content.replace(/([^\n])\s*(<\/script>)/gi, '$1\n$2');
+  }
 
   return content;
 }

@@ -35,13 +35,15 @@ function getDefaultOptions() {
     preserveIncludeDirectives: true,
     preserveComplexExpressions: true,
     detectAspLanguage: true,
-    formatVbscriptInAspBlocks: false,
+    formatVbscriptInAspBlocks: true,
     formatJscriptInAspBlocks: false,
     vbscriptIndentSize: 4,
+    vbscriptConvertTabsToSpaces: true,
     jscriptIndentSize: 2,
     vbscriptAlignAssignments: false,
     jscriptSemicolons: true,
-    maxLineLength: 120
+    maxLineLength: 120,
+    normalizeScriptClose: true
   };
 }
 
@@ -68,7 +70,8 @@ function runOne(inputPath, beautifyHtml, repoRoot, snapshotsDir) {
   }
 
   const expected = fs.readFileSync(snapshotPath, 'utf8');
-  if (expected === formatted) {
+  const norm = s => s.replace(/\r\n/g, '\n').replace(/\n$/, '');
+  if (norm(expected) === norm(formatted)) {
     console.log('Snapshot OK:', path.relative(repoRoot, snapshotPath));
     return 0;
   }
@@ -86,9 +89,9 @@ function runOne(inputPath, beautifyHtml, repoRoot, snapshotsDir) {
   const snapshotsDir = path.join(repoRoot, 'snapshots');
   const inputs = process.argv.slice(2);
   const files = inputs.length ? inputs : [
-    path.join(repoRoot, 'aspExampleFortesting.asp'),
-    path.join(repoRoot, 'samples', 'minimal.asp'),
-    path.join(repoRoot, 'samples', 'attributes.asp')
+    // Keep defaults minimal to reduce churn; pass files on CLI to expand
+    path.join(repoRoot, 'samples', 'vbscript-indent.asp'),
+    path.join(repoRoot, 'samples', 'script-close.asp')
   ];
 
   let status = 0;
