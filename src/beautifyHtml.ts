@@ -267,12 +267,59 @@ function formatAspBlock(content: string, options: any): string {
   return `${prefix}${formattedCode}${suffix}`;
 }
 
-function reinsertAspBlocks(text, preservedBlocks) {
-  let result = text;
-  preservedBlocks.forEach(block => {
-    result = result.replace(block.placeholder, block.content);
+function reinsertAspBlocks(text: string, preservedBlocks: Array<{ placeholder: string, content: string, type: string }>, options: any): string {
+  if (!preservedBlocks || preservedBlocks.length === 0) return text;
+
+  // Create quick lookup map
+  const map = new Map<string, { content: string, type: string }>();
+  preservedBlocks.forEach(b => map.set(b.placeholder, { content: b.content, type: b.type }));
+
+  // Replace placeholders with aligned content
+  return text.replace(/__ASP_BLOCK_\d+__/g, (ph, ...args) => {
+    const matchIndex = args[args.length - 2] as number; // offset
+    const full = args[args.length - 1] as string; // full string
+    const entry = map.get(ph);
+    if (!entry) return ph;
+
+    const content = entry.content;
+
+    if (options && options.alignServerBlocks === false) {
+      return content; // no alignment
+    }
+
+    // Determine indentation at placeholder position
+    const lineStart = full.lastIndexOf('\n', matchIndex - 1) + 1;
+    const before = full.slice(lineStart, matchIndex);
+    const isAtLineStart = /^\s*$/.test(before);
+    const indent = before; // existing indentation spaces/tabs before placeholder
+
+    if (!isAtLineStart) {
+      // Inline placeholder: return content as-is
+      return content;
+    }
+
+    // Align multi-line ASP content to surrounding HTML indent
+    const lines = content.split('\n');
+    if (lines.length === 1) {
+      return content; // single-line; outer indent already present
+    }
+
+    // Strip common leading whitespace from subsequent lines, then re-indent
+    const subsequent = lines.slice(1);
+    const nonEmpty = subsequent.filter(l => l.trim().length > 0);
+    const commonPrefixLen = nonEmpty.length
+      ? Math.min(...nonEmpty.map(l => (l.match(/^\s*/)?.[0].length || 0)))
+      : 0;
+
+    const adjusted = [lines[0]].concat(
+      subsequent.map(l => {
+        const stripped = l.replace(new RegExp('^\\s{0,' + commonPrefixLen + '}'), '');
+        return indent + stripped;
+      })
+    );
+
+    return adjusted.join('\n');
   });
-  return result;
 }
 
 export default function (originalText, htmlOptions) {
@@ -293,9 +340,13 @@ export default function (originalText, htmlOptions) {
     formattedHtml = postProcessAspContent(formattedHtml, htmlOptions);
 
     // Re-insert the preserved ASP blocks
-    const finalResult = reinsertAspBlocks(formattedHtml, preservedBlocks);
+    let finalResult = reinsertAspBlocks(formattedHtml, preservedBlocks, htmlOptions);
 
-    // Return the final merged result
+    // Cleanup: strip trailing whitespace per line
+    if (htmlOptions && htmlOptions.trimTrailingWhitespace !== false) {
+      finalResult = finalResult.replace(/[ \t]+$/gm, '');
+    }
+
     return finalResult;
 
   } catch (error) {

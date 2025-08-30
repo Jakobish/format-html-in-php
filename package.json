@@ -19,6 +19,28 @@
   ],
   "keywords": [],
   "contributes": {
+    "languages": [
+      {
+        "id": "asp",
+        "aliases": ["Classic ASP", "ASP"],
+        "extensions": [".asp", ".asa", ".inc"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "asp",
+        "scopeName": "text.html.asp",
+        "path": "./syntaxes/asp.tmLanguage.json",
+        "injectTo": ["text.html.basic"]
+      }
+    ],
+    "snippets": [
+      {
+        "language": "asp",
+        "path": "./snippets/asp.code-snippets"
+      }
+    ],
     "configuration": {
       "title": "Format HTML in Classic ASP",
       "properties": {
@@ -31,6 +53,16 @@
           "type": "boolean",
           "default": true,
           "description": "Format HTML on save for Classic ASP files"
+        },
+        "formatHtmlInAsp.alignServerBlocks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Align multi-line <% %> blocks with surrounding HTML indentation"
+        },
+        "formatHtmlInAsp.trimTrailingWhitespace": {
+          "type": "boolean",
+          "default": true,
+          "description": "Remove trailing spaces and tabs at line ends after formatting"
         },
         "formatHtmlInAsp.preserveServerBlocks": {
           "type": "boolean",
@@ -49,12 +81,12 @@
         },
         "formatHtmlInAsp.detectAspLanguage": {
           "type": "boolean",
-          "default": true,
-          "description": "Auto-detect VBScript vs JScript inside ASP blocks"
+          "default": false,
+          "description": "Auto-detect VBScript vs JScript inside ASP blocks (VBScript-focused: off by default)"
         },
         "formatHtmlInAsp.formatVbscriptInAspBlocks": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Attempt to format VBScript inside <% ... %> blocks"
         },
         "formatHtmlInAsp.formatJscriptInAspBlocks": {
@@ -91,8 +123,7 @@
           "type": "array",
           "default": [
             "asp",
-            "vbscript",
-            "javascript"
+            "vbscript"
           ],
           "description": "List of language IDs to enable formatting for"
         }
@@ -110,21 +141,29 @@
       {
         "command": "formatHtmlInAsp.formatAllOpen",
         "title": "Format HTML in All Open Classic ASP Files"
+      },
+      {
+        "command": "formatHtmlInAsp.formatWorkspace",
+        "title": "Format HTML in Classic ASP (Workspace)"
       }
     ],
     "menus": {
       "commandPalette": [
         {
           "command": "formatHtmlInAsp.format",
-          "when": "editorLangId =~ /^(asp|vbscript|javascript)$/"
+          "when": "editorLangId =~ /^(asp|vbscript)$/"
         },
         {
           "command": "formatHtmlInAsp.formatSelection",
-          "when": "editorLangId =~ /^(asp|vbscript|javascript)$/ && editorHasSelection"
+          "when": "editorLangId =~ /^(asp|vbscript)$/ && editorHasSelection"
         },
         {
           "command": "formatHtmlInAsp.formatAllOpen",
           "when": "true"
+        },
+        {
+          "command": "formatHtmlInAsp.formatWorkspace",
+          "when": "workspaceFolderCount > 0"
         }
       ],
       "editor/context": [
@@ -142,14 +181,13 @@
       {
         "command": "formatHtmlInAsp.format",
         "key": "ctrl+alt+f",
-        "when": "editorLangId =~ /^(asp|vbscript|javascript)$/"
+        "when": "editorLangId =~ /^(asp|vbscript)$/"
       }
     ]
   },
   "activationEvents": [
     "onLanguage:asp",
-    "onLanguage:vbscript",
-    "onLanguage:javascript"
+    "onLanguage:vbscript"
   ],
   "main": "./out/extension",
   "scripts": {

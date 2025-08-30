@@ -14,7 +14,7 @@ class DocumentWatcher {
     const subscriptions: vscode.Disposable[] = [];
     subscriptions.push(vscode.workspace.onWillSaveTextDocument(event => {
       const editor = vscode.window.activeTextEditor;
-      if (['asp', 'vbscript', 'javascript'].includes(editor.document.languageId)) {
+      if (['asp', 'vbscript'].includes(editor.document.languageId)) {
         const cursor = editor.selection.active;
         const last = editor.document.lineAt(editor.document.lineCount - 1);
         const range = new vscode.Range(
@@ -108,7 +108,7 @@ export function activate(formatHtmlInAsp: vscode.ExtensionContext) {
 
   formatHtmlInAsp.subscriptions.push(vscode.commands.registerCommand('formatHtmlInAsp.formatAllOpen', async () => {
     const aspDocuments = vscode.workspace.textDocuments.filter(doc =>
-      ['asp', 'vbscript', 'javascript'].includes(doc.languageId)
+      ['asp', 'vbscript'].includes(doc.languageId)
     );
 
     if (aspDocuments.length === 0) {
@@ -183,5 +183,89 @@ export function activate(formatHtmlInAsp: vscode.ExtensionContext) {
     } catch (error) {
       vscode.window.showErrorMessage(`Formatting error: ${error.message}`);
     }
+  }));
+
+  // Format entire workspace
+  formatHtmlInAsp.subscriptions.push(vscode.commands.registerCommand('formatHtmlInAsp.formatWorkspace', async () => {
+    const choice = await vscode.window.showInformationMessage(
+      'Format Classic ASP files in this workspace?',
+      { modal: true },
+      'Apply', 'Dry Run', 'Cancel'
+    );
+    if (!choice || choice === 'Cancel') return;
+    const dryRun = (choice === 'Dry Run');
+
+    const config = vscode.workspace.getConfiguration();
+    const include = '**/*.{asp,asa,inc}';
+    const excludePatterns: string[] = [];
+    const filesExclude = config.get<any>('files.exclude') || {};
+    const searchExclude = config.get<any>('search.exclude') || {};
+    for (const [glob, enabled] of Object.entries(filesExclude)) {
+      if (enabled === true) excludePatterns.push(glob as string);
+    }
+    for (const [glob, enabled] of Object.entries(searchExclude)) {
+      if (enabled === true && !excludePatterns.includes(glob as string)) excludePatterns.push(glob as string);
+    }
+    // Always ignore common folders
+    ['**/node_modules/**', '**/.git/**', '**/out/**'].forEach(g => {
+      if (!excludePatterns.includes(g)) excludePatterns.push(g);
+    });
+    const exclude = excludePatterns.length ? `{${excludePatterns.join(',')}}` : undefined;
+
+    const uris = await vscode.workspace.findFiles(include, exclude);
+    if (uris.length === 0) {
+      vscode.window.showInformationMessage('No Classic ASP files found in workspace.');
+      return;
+    }
+
+    await vscode.window.withProgress({
+      location: vscode.ProgressLocation.Notification,
+      title: `Formatting ${uris.length} Classic ASP file(s)` ,
+      cancellable: true
+    }, async (progress, token) => {
+      const total = uris.length;
+      let processed = 0;
+      let changed = 0;
+      let applied = 0;
+      let errors = 0;
+
+      const batchEdit = new vscode.WorkspaceEdit();
+
+      for (const uri of uris) {
+        if (token.isCancellationRequested) break;
+        processed++;
+        progress.report({ message: `${processed}/${total}: ${uri.fsPath.split('/').pop()}` , increment: (1 / total) * 100 });
+        try {
+          const doc = await vscode.workspace.openTextDocument(uri);
+          const html = doc.getText();
+          const options = optionsFromVSCode(config);
+          const formattedHtml = beautifyHtml(html, options);
+          if (formattedHtml !== html) {
+            changed++;
+            if (!dryRun) {
+              const last = doc.lineAt(doc.lineCount - 1);
+              const range = new vscode.Range(new vscode.Position(0, 0), last.range.end);
+              batchEdit.replace(uri, range, formattedHtml);
+            }
+          }
+        } catch (e) {
+          errors++;
+          console.error(`Format error for ${uri.fsPath}:`, e);
+        }
+      }
+
+      if (!dryRun) {
+        const success = await vscode.workspace.applyEdit(batchEdit);
+        if (success) applied = changed;
+      }
+
+      if (token.isCancellationRequested) {
+        vscode.window.showWarningMessage(`Formatting cancelled. ${processed}/${total} processed, ${changed} changed, ${errors} errors.`);
+      } else if (dryRun) {
+        vscode.window.showInformationMessage(`Dry run: ${processed} scanned, ${changed} would change, ${errors} errors.`);
+      } else {
+        vscode.window.showInformationMessage(`Formatted ${applied} file(s). Scanned ${processed}, ${errors} errors.`);
+      }
+    });
   }));
 }

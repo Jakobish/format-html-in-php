@@ -53,13 +53,16 @@ export default function(config) {
     wrap_attributes: config.html.format.wrapAttributes,
     indent_scripts: "keep",
     end_with_newline: config.html.format.endWithNewline,
+    // Alignment and whitespace cleanup
+    alignServerBlocks: config.get('formatHtmlInAsp.alignServerBlocks') !== undefined ? config.get('formatHtmlInAsp.alignServerBlocks') : true,
+    trimTrailingWhitespace: config.get('formatHtmlInAsp.trimTrailingWhitespace') !== undefined ? config.get('formatHtmlInAsp.trimTrailingWhitespace') : true,
     // New ASP preservation options (extension settings)
     preserveAspComments: config.get('formatHtmlInAsp.preserveAspComments') !== undefined ? config.get('formatHtmlInAsp.preserveAspComments') : true,
     preserveIncludeDirectives: config.get('formatHtmlInAsp.preserveIncludeDirectives') !== undefined ? config.get('formatHtmlInAsp.preserveIncludeDirectives') : true,
     preserveComplexExpressions: true,
     // ASP language detection and formatting options
-    detectAspLanguage: config.get('formatHtmlInAsp.detectAspLanguage') !== undefined ? config.get('formatHtmlInAsp.detectAspLanguage') : true,
-    formatVbscriptInAspBlocks: config.get('formatHtmlInAsp.formatVbscriptInAspBlocks') !== undefined ? config.get('formatHtmlInAsp.formatVbscriptInAspBlocks') : false,
+    detectAspLanguage: config.get('formatHtmlInAsp.detectAspLanguage') !== undefined ? config.get('formatHtmlInAsp.detectAspLanguage') : false,
+    formatVbscriptInAspBlocks: config.get('formatHtmlInAsp.formatVbscriptInAspBlocks') !== undefined ? config.get('formatHtmlInAsp.formatVbscriptInAspBlocks') : true,
     formatJscriptInAspBlocks: config.get('formatHtmlInAsp.formatJscriptInAspBlocks') !== undefined ? config.get('formatHtmlInAsp.formatJscriptInAspBlocks') : false,
     vbscriptIndentSize: config.get('formatHtmlInAsp.vbscriptIndentSize') !== undefined ? config.get('formatHtmlInAsp.vbscriptIndentSize') : 4,
     jscriptIndentSize: config.get('formatHtmlInAsp.jscriptIndentSize') !== undefined ? config.get('formatHtmlInAsp.jscriptIndentSize') : 2,

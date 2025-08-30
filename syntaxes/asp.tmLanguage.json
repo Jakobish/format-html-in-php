@@ -1,0 +1,89 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Classic ASP (HTML)",
+  "scopeName": "text.html.asp",
+  "patterns": [
+    { "include": "text.html.basic" },
+    { "include": "#ssi-include" },
+    { "include": "#asp-directive" },
+    { "include": "#asp-declaration" },
+    { "include": "#asp-output" },
+    { "include": "#asp-comment" },
+    { "include": "#asp-server" }
+  ],
+  "repository": {
+    "ssi-include": {
+      "name": "comment.block.ssi.include.asp",
+      "match": "<!--\\s*#include[\\s\\S]*?-->"
+    },
+    "asp-directive": {
+      "begin": "<%@",
+      "beginCaptures": { "0": { "name": "punctuation.section.embedded.begin.asp" } },
+      "end": "%>",
+      "endCaptures": { "0": { "name": "punctuation.section.embedded.end.asp" } },
+      "name": "meta.directive.asp",
+      "patterns": [
+        { "include": "#vbscript-basic" }
+      ]
+    },
+    "asp-declaration": {
+      "begin": "<%!",
+      "beginCaptures": { "0": { "name": "punctuation.section.embedded.begin.asp" } },
+      "end": "%>",
+      "endCaptures": { "0": { "name": "punctuation.section.embedded.end.asp" } },
+      "name": "meta.declaration.asp",
+      "contentName": "source.vbscript.embedded.asp",
+      "patterns": [ { "include": "#vbscript-basic" } ]
+    },
+    "asp-output": {
+      "begin": "<%=",
+      "beginCaptures": { "0": { "name": "punctuation.section.embedded.begin.asp" } },
+      "end": "%>",
+      "endCaptures": { "0": { "name": "punctuation.section.embedded.end.asp" } },
+      "name": "meta.output.asp",
+      "contentName": "source.vbscript.embedded.asp",
+      "patterns": [ { "include": "#vbscript-basic" } ]
+    },
+    "asp-comment": {
+      "begin": "<%--",
+      "beginCaptures": { "0": { "name": "punctuation.definition.comment.begin.asp" } },
+      "end": "--%>",
+      "endCaptures": { "0": { "name": "punctuation.definition.comment.end.asp" } },
+      "name": "comment.block.asp"
+    },
+    "asp-server": {
+      "begin": "<%",
+      "beginCaptures": { "0": { "name": "punctuation.section.embedded.begin.asp" } },
+      "end": "%>",
+      "endCaptures": { "0": { "name": "punctuation.section.embedded.end.asp" } },
+      "name": "meta.embedded.asp",
+      "contentName": "source.vbscript.embedded.asp",
+      "patterns": [ { "include": "#vbscript-basic" } ]
+    },
+    "vbscript-basic": {
+      "patterns": [
+        {
+          "name": "comment.line.apostrophe.vbscript.asp",
+          "match": "^\\s*'[^\\n]*"
+        },
+        {
+          "name": "keyword.control.vbscript.asp",
+          "match": "\\b(?i:if|then|else|elseif|end|for|to|step|next|while|wend|do|loop|select|case|function|sub|class|with|property|exit|call|on|error|resume|redim|preserve)\\b"
+        },
+        {
+          "name": "storage.type.vbscript.asp",
+          "match": "\\b(?i:dim|set|const|public|private)\\b"
+        },
+        {
+          "name": "support.class.asp",
+          "match": "\\b(?i:Server|Response|Request|Session|Application)\\b"
+        },
+        {
+          "name": "string.quoted.double.vbscript.asp",
+          "begin": '"',
+          "end": '"'
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "If Then End If": {
+    "prefix": "asp-if",
+    "body": [
+      "<% If ${1:condition} Then %>",
+      "  ${2:' code'}",
+      "<% End If %>"
+    ],
+    "description": "VBScript If ... Then ... End If block"
+  },
+  "Response.Write": {
+    "prefix": "asp-write",
+    "body": ["<% Response.Write(${1:expr}) %>"],
+    "description": "Response.Write expression"
+  },
+  "Server.CreateObject": {
+    "prefix": "asp-createobject",
+    "body": ["<% Set ${1:obj} = Server.CreateObject(\"${2:ProgID}\") %>"],
+    "description": "Create COM object"
+  },
+  "SSI Include": {
+    "prefix": "asp-include",
+    "body": ["<!--#include file=\"${1:path}\"-->"],
+    "description": "Server-side include"
+  }
+}
+
