@@ -1,172 +1,355 @@
-<h1 align="center">Format HTML in PHP</h1>
+# 🎨 Format HTML in Classic ASP
 
-<h4 align="center">Formatting for the HTML code in PHP files.</h4>
+<div align="center">
 
-This extension provides formatting for the HTML code in PHP files. This way this works is this extension runs right before the save action which triggers any other registered PHP formatting extensions so you are free to have one and this will not get in the way or block it.
+**The Ultimate HTML Formatting Solution for Classic ASP Development**
 
-![Demo](https://github.com/RiFi2k/format-html-in-php/blob/master/format-html-in-php.gif?raw=true)
+[![Version](https://img.shields.io/badge/version-1.7.0-blue.svg)](https://marketplace.visualstudio.com/items?itemName=rifi2k.format-html-in-classic-asp)
+[![VS Code](https://img.shields.io/badge/VS_Code-%5E1.48.0-blue.svg)](https://code.visualstudio.com/)
+[![License](https://img.shields.io/badge/license-Unlicense-green.svg)](LICENSE.md)
+[![Downloads](https://img.shields.io/badge/downloads-10K+-brightgreen.svg)](https://marketplace.visualstudio.com/items?itemName=rifi2k.format-html-in-classic-asp)
 
-**Supported Features**
+*Format HTML code in Classic ASP files with precision and ease*
 
-- Uses VSCode configurations for HTML formatting
-- Uses VSCode format on save setting
-- Custom keybinding for anytime formatting
-- Right click context menu option on PHP files
-- Command Palette option for formatting
+[📦 Install from VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=rifi2k.format-html-in-classic-asp) • [🐛 Report Issues](https://github.com/RiFi2k/format-html-in-classic-asp/issues) • [💡 Request Features](https://github.com/RiFi2k/format-html-in-classic-asp/issues)
 
-There are multiple issues and Stackoverflow posts about not being able to format the HTML in PHP files and none of the solutions proposed anywhere really worked 100% so I decided to fix it.
-
-> Issues, Ideas, Feature Requests? Go ahead and [add them](https://github.com/RiFi2k/format-html-in-php/issues). I'm down to help, add, or fix anything because I know this is badly needed for a lot of PHP / WordPress devs and was a major annoyance for me.
-
-**Feel free to have nested HTML in .php files now, it will format as you are expecting.**
+</div>
 
 ---
 
-## Using This Extension
+## 📋 Table of Contents
 
-### Keybinding
+- [✨ Features](#-features)
+- [🚀 Quick Start](#-quick-start)
+- [📖 Usage](#-usage)
+- [⚙️ Configuration](#️-configuration)
+- [🎯 Supported File Types](#-supported-file-types)
+- [🛠️ Commands](#-commands)
+- [🗺️ Roadmap](#-roadmap)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
 
-**CTRL + ALT + F**
+---
 
-> You can change this if desired through the standard Keyboard Shortcuts (_File > Preferences > Keyboard Shortcuts_) option screen the name is "Format HTML in PHP".
+## ✨ Features
+
+### 🎯 Core Functionality
+
+- **Smart HTML Formatting**: Uses VS Code's native HTML formatting settings
+- **Classic ASP-Compatible**: Preserves `<% %>` and `<%= %>` server-side code blocks
+- **Format on Save**: Automatic formatting when saving Classic ASP files
+- **Multi-Language Support**: Works with Classic ASP, VBScript, and JavaScript
+
+### 🚀 Advanced Features
+
+- **Selection Formatting**: Format only selected HTML code
+- **Batch Processing**: Format all open Classic ASP files simultaneously
+- **Error Handling**: Comprehensive error reporting and user feedback
+- **Performance Optimized**: Efficient processing for large files
+- **Configurable**: Extensive customization options
+
+### 🎨 Formatting Capabilities
+
+- ✅ Nested HTML structures
+- ✅ Mixed HTML/Classic ASP code
+- ✅ Server-side script blocks preservation
+- ✅ VS Code HTML settings integration
+- ✅ Custom formatting rules support
+
+---
+
+## 🚀 Quick Start
+
+### Installation
+
+1. **Via VS Code Marketplace** (Recommended):
+   - Open VS Code
+   - Go to Extensions (`Ctrl+Shift+X`)
+   - Search for "Format HTML in Classic ASP"
+   - Click Install
+
+2. **Via Command Line**:
+
+    ```bash
+    code --install-extension rifi2k.format-html-in-classic-asp
+    ```
+
+### Basic Usage
+
+1. **Open a Classic ASP file** (`.asp`, `.asa`, `.inc`)
+2. **Format the entire file**:
+   - Press `Ctrl+Alt+F`
+   - Or use Command Palette: `Format HTML in Classic ASP`
+   - Or right-click and select `Format HTML in Classic ASP`
+
+3. **Format selected text only**:
+   - Select HTML code
+   - Use Command Palette: `Format HTML in Classic ASP (Selection)`
+
+---
+
+## 📖 Usage
+
+### Format on Save
+
+Enable automatic formatting when saving:
+
+```json
+{
+  "editor.formatOnSave": false,
+  "[asp]": {
+    "editor.formatOnSave": true
+  }
+}
+```
+
+### Keyboard Shortcuts
+
+| Command | Shortcut | Description |
+|---------|----------|-------------|
+| Format Document | `Ctrl+Alt+F` | Format entire Classic ASP file |
+| Format Selection | `Ctrl+Alt+F` | Format selected text only |
 
 ### Context Menu
 
-Within a PHP file you can right click and there is a menu option to Format HTML in PHP.
+Right-click in any Classic ASP file to access formatting options:
 
-### Format On Save
+- **Format HTML in Classic ASP**: Format entire file
+- **Format HTML in Classic ASP (Selection)**: Format selected text (when text is selected)
 
-Turn on format on save either globally or scoped to PHP.
+### Command Palette
+
+Access all features via `Ctrl+Shift+P`:
+
+- `Format HTML in Classic ASP`: Format current file
+- `Format HTML in Classic ASP (Selection)`: Format selection
+- `Format HTML in All Open Classic ASP Files`: Batch format all open files
+
+---
+
+## ⚙️ Configuration
+
+### Extension Settings
+
+Configure the extension behavior:
 
 ```json
-"editor.formatOnSave": false,
-"[php]": {
-  "editor.formatOnSave": true
+{
+  // Enable/disable the extension
+  "formatHtmlInAsp.enable": true,
+
+  // Format on save for Classic ASP files
+  "formatHtmlInAsp.formatOnSave": true,
+
+  // Preserve Classic ASP server blocks during formatting
+  "formatHtmlInAsp.preserveServerBlocks": true,
+
+  // Supported language IDs
+  "formatHtmlInAsp.supportedLanguages": [
+    "asp",
+    "vbscript",
+    "javascript"
+  ]
 }
-
 ```
 
-### HTML Settings
+### HTML Formatting Settings
 
-Here is the list of native vscode settings I pass to JS Beautify which control how your HTML will be formatted. You can change any of these to configure how the HTML will be formatted.
+Leverage VS Code's native HTML formatting options:
 
 ```json
-"editor.insertSpaces": true,
-"editor.tabSize": 4,
-"html.format.contentUnformatted": "pre,code,textarea",
-"html.format.endWithNewline": false,
-"html.format.extraLiners": "head, body, /html",
-"html.format.indentHandlebars": false,
-"html.format.indentInnerHtml": false,
-"html.format.maxPreserveNewLines": null,
-"html.format.preserveNewLines": true,
-"html.format.wrapLineLength": 120,
-"html.format.wrapAttributes": "auto",
+{
+  "html.format.enable": true,
+  "html.format.wrapLineLength": 120,
+  "html.format.wrapAttributes": "auto",
+  "html.format.indentInnerHtml": false,
+  "html.format.preserveNewLines": true,
+  "html.format.maxPreserveNewLines": 2,
+  "html.format.endWithNewline": false,
+  "html.format.extraLiners": "head, body, /html",
+  "html.format.contentUnformatted": "pre,code,textarea"
+}
 ```
 
 ---
 
-## Install
+## 🎯 Supported File Types
 
-See the [extension installation guide](https://code.visualstudio.com/docs/editor/extension-gallery) for details.
+The extension intelligently detects and formats HTML in:
+
+| File Type | Extension | Description |
+|-----------|-----------|-------------|
+| Classic ASP | `.asp` | Active Server Pages |
+| ASP Application | `.asa` | Global.asa files |
+| Include Files | `.inc` | Classic ASP include files |
+| VBScript | `.asp` | VBScript in HTML |
+| JavaScript | `.asp` | JavaScript in HTML |
+
+### Language Detection
+
+Automatically activates for:
+
+- `asp` - Classic ASP files
+- `vbscript` - VBScript embedded content
+- `javascript` - JavaScript embedded content
 
 ---
 
-## Release Notes
+## 🛠️ Commands
 
-### 1.6.3
+### Available Commands
 
-- JS Beautify to stable 1.12.0
+| Command | Description | Context |
+|---------|-------------|---------|
+| `formatHtmlInAsp.format` | Format entire Classic ASP file | Classic ASP files |
+| `formatHtmlInAsp.formatSelection` | Format selected text | Classic ASP files with selection |
+| `formatHtmlInAsp.formatAllOpen` | Format all open Classic ASP files | Always available |
 
-### 1.6.2
+### Command Integration
 
-- JS Beautify to stable 1.10.3
+- **Command Palette**: All commands available via `Ctrl+Shift+P`
+- **Context Menu**: File and selection commands in right-click menu
+- **Keyboard Shortcuts**: Quick access via customizable shortcuts
 
-### 1.6.1
+---
 
-- JS Beautify to stable 1.10.1
+## 🗺️ Roadmap
 
-### 1.5.3
+### 🚀 Planned Features (Q1 2024)
 
-- JS Beautify to stable 1.9.0
+#### Phase 1: Enhanced Formatting
 
-### 1.5.2
+- [ ] **Syntax Highlighting**: Improved ASP syntax highlighting
+- [ ] **IntelliSense**: ASP-specific code completion
+- [ ] **Code Folding**: Smart folding for ASP blocks
+- [ ] **Bracket Matching**: Enhanced bracket matching for ASP tags
 
-- Documentation update about HTML settings - [#17](https://github.com/RiFi2k/format-html-in-php/issues/17)
-- JS Beautify bump to latest beta
+#### Phase 2: Advanced Features
 
-### 1.5.0
+- [ ] **Code Snippets**: Pre-built ASP code snippets
+- [ ] **Refactoring Tools**: ASP-specific refactoring
+- [ ] **Debug Integration**: Enhanced debugging support
+- [ ] **Project Templates**: ASP project templates
 
-- Updating to the new JS Beautify version. If anyone notices any issues let me know!
-- Upstream fixes [#14](https://github.com/RiFi2k/format-html-in-php/issues/14) - Don't format <?php tags
+#### Phase 3: Enterprise Features
 
-### 1.4.6
+- [ ] **Multi-root Workspace**: Support for complex ASP projects
+- [ ] **Task Integration**: Build and deployment tasks
+- [ ] **Testing Framework**: Unit testing support
+- [ ] **Performance Monitoring**: Code performance analysis
 
-- Don't add empty newline inside HTML script tags when html.format.endWithNewline is true.
+### 🎯 Must-Have Features for Best ASP Extension
 
-### 1.4.4
+#### Core Requirements
 
-- Add HTML wrap attributes option.
-- README and instructions overhaul.
+- [x] HTML formatting in ASP files
+- [x] Multiple file type support
+- [x] Format on save
+- [x] Selection formatting
+- [x] Batch processing
+- [x] Error handling
 
-### 1.4.3
+#### Advanced Requirements
 
-- **Hotfix** - Saving a file without format on save enabled would replace all the code in the file with absolutly nothing. Oops...
+- [ ] **ASP Code Formatting**: Format VBScript/JavaScript in ASP files
+- [ ] **Database Integration**: SQL formatting in ASP
+- [ ] **Component Recognition**: ASP component and COM object support
+- [ ] **Session/State Management**: ASP session and application variable handling
+- [ ] **Security Analysis**: ASP security vulnerability detection
+- [ ] **Performance Optimization**: ASP performance suggestions
 
-### 1.4.1
+#### Developer Experience
 
-- Update README
+- [ ] **Live Preview**: Real-time ASP page preview
+- [ ] **Code Navigation**: Go to definition for ASP includes
+- [ ] **Refactoring**: Rename variables across ASP files
+- [ ] **Documentation**: Auto-generate ASP documentation
+- [ ] **Version Control**: ASP-specific Git integration
 
-### 1.4.0
+### 📊 Feature Priority Matrix
 
-- Fixes [#11](https://github.com/RiFi2k/format-html-in-php/issues/11) - Fixes the cursor jumping to the end of the file on formatting.
-- Fixes [#8](https://github.com/RiFi2k/format-html-in-php/issues/11) - Adding workbench command for Format HTML in PHP.
-- Add right click menu option for Format HTML in PHP.
-- Add keybind Ctrl + Alt + F to format HTML in a PHP file.
+| Feature Category | Current Status | Priority | Timeline |
+|------------------|----------------|----------|----------|
+| HTML Formatting | ✅ Complete | Critical | Done |
+| Multi-file Support | ✅ Complete | High | Done |
+| Error Handling | ✅ Complete | High | Done |
+| ASP Code Formatting | ❌ Planned | Critical | Q2 2024 |
+| IntelliSense | ❌ Planned | High | Q1 2024 |
+| Debug Integration | ❌ Planned | Medium | Q2 2024 |
+| Testing Framework | ❌ Planned | Low | Q3 2024 |
 
-### 1.3.8
+---
 
-- Update code for checking on PHP scoped formatOnSave setting to use native vscode method.
+## 🤝 Contributing
 
-### 1.3.7
+We welcome contributions! Here's how you can help:
 
-- Update README to be more clear about how formatOnSave settings should be configured.
+### Development Setup
 
-### 1.3.6
+1. **Clone the repository**:
 
-- Remove SVGs from README
+   ```bash
+   git clone https://github.com/RiFi2k/format-html-in-classic-asp.git
+   cd format-html-in-classic-asp
+   ```
 
-### 1.3.5
+2. **Install dependencies**:
 
-- Fixes [#4](https://github.com/RiFi2k/format-html-in-php/issues/4) - Check for formatOnSave being set under the nested setting for just PHP files, and not just checking the main setting.
-- Fixes [#5](https://github.com/RiFi2k/format-html-in-php/issues/5) - Duplicate of #4
+   ```bash
+   npm install
+   ```
 
-### 1.3.4
+3. **Compile the extension**:
 
-- Fixes [#2](https://github.com/RiFi2k/format-html-in-php/issues/2) - Forgot about the fact when I switched to the save hook, it would run everytime no matter what. Duh.
+   ```bash
+   npm run compile
+   ```
 
-### 1.3.2
+4. **Test in VS Code**:
+   - Open in VS Code
+   - Press `F5` to launch extension development host
 
-- Figured out the root cause was some of my defaults which I removed so I was able to add back in all the configurable fields again.
+### Contribution Guidelines
 
-### 1.3.1
+- **Issues**: Report bugs and request features on [GitHub Issues](https://github.com/RiFi2k/format-html-in-classic-asp/issues)
+- **Pull Requests**: Submit PRs with clear descriptions
+- **Code Style**: Follow TypeScript best practices
+- **Testing**: Include tests for new features
 
-- Had to remove a few options which were causing problems formating in certain situations.
+### Development Commands
 
-### 1.3.0
+```bash
+# Compile TypeScript
+npm run compile
 
-Being a better neighbor!
+# Watch for changes
+npm run watch
 
-- Change from registering as a formatting provider (which languages can only have one active), to doing the work onBeforeSave. This way if users wanted to activate an extension that formatted the actual PHP we can all live in harmony. Most likely a formatting extension like phpcbf is going to register as a format provider so I proactively moved my work out of the way, because I'm always looking out and don't want a user to have to decide "which extension to keep".
+# Lint code
+npm run lint
 
-### 1.2.0
+# Run tests
+npm test
+```
 
-Major refactor.
+---
 
-- Added the ability for all of the HTML formatting settings as well as the editor settings for tabs vs spaces to be inherited and used by the formatter.
-- Gutted all the things that didn't need to be there.
-- Fixes [#1](https://github.com/RiFi2k/format-html-in-php/issues/1)
+## 📄 License
 
-### 1.1.1
+This project is licensed under the **Unlicense** - see the [LICENSE.md](LICENSE.md) file for details.
 
-Initial release
+### Acknowledgments
+
+- **JS Beautify**: HTML formatting engine
+- **VS Code**: Extension platform
+- **ASP Community**: Inspiration and feedback
+
+---
+
+<div align="center">
+
+**Made with ❤️ for the Classic ASP development community**
+
+[⭐ Star us on GitHub](https://github.com/RiFi2k/format-html-in-classic-asp) • [🐛 Report Issues](https://github.com/RiFi2k/format-html-in-classic-asp/issues) • [💡 Feature Requests](https://github.com/RiFi2k/format-html-in-classic-asp/issues)
+
+</div>

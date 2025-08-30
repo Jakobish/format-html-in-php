@@ -14,7 +14,7 @@ class DocumentWatcher {
     const subscriptions: vscode.Disposable[] = [];
     subscriptions.push(vscode.workspace.onWillSaveTextDocument(event => {
       const editor = vscode.window.activeTextEditor;
-      if (editor.document.languageId === 'php') {
+      if (['asp', 'vbscript', 'javascript'].includes(editor.document.languageId)) {
         const cursor = editor.selection.active;
         const last = editor.document.lineAt(editor.document.lineCount - 1);
         const range = new vscode.Range(
@@ -50,15 +50,15 @@ class DocumentWatcher {
     reason: vscode.TextDocumentSaveReason
   ): Promise<string> {
     const config = vscode.workspace.getConfiguration();
-    const phpScopedFormat = has(config, '[php]');
-    let phpScopedFormatVal = false;
-    if (phpScopedFormat) {
-      const phpScopedObj = get(config, '[php]');
-      if (phpScopedObj['editor.formatOnSave']) {
-        phpScopedFormatVal = true;
+    const aspScopedFormat = has(config, '[asp]');
+    let aspScopedFormatVal = false;
+    if (aspScopedFormat) {
+      const aspScopedObj = get(config, '[asp]');
+      if (aspScopedObj['editor.formatOnSave']) {
+        aspScopedFormatVal = true;
       }
     }
-    if (config.editor.formatOnSave === true || phpScopedFormatVal === true) {
+    if (config.get('formatHtmlInAsp.formatOnSave') === true || config.editor.formatOnSave === true || aspScopedFormatVal === true) {
       const html = vscode.window.activeTextEditor.document.getText();
       const options = optionsFromVSCode(config);
       return beautifyHtml(html, options);
@@ -68,28 +68,120 @@ class DocumentWatcher {
 
 }
 
-export function activate(formatHtmlInPhp: vscode.ExtensionContext) {
+export function activate(formatHtmlInAsp: vscode.ExtensionContext) {
   const docWatch = new DocumentWatcher();
-  formatHtmlInPhp.subscriptions.push(docWatch);
-  formatHtmlInPhp.subscriptions.push(vscode.commands.registerCommand('formatHtmlInPhp.format', () => {
+  formatHtmlInAsp.subscriptions.push(docWatch);
+  formatHtmlInAsp.subscriptions.push(vscode.commands.registerCommand('formatHtmlInAsp.format', () => {
     const editor = vscode.window.activeTextEditor;
-    const config = vscode.workspace.getConfiguration();
-    const cursor = editor.selection.active;
-    const last = editor.document.lineAt(editor.document.lineCount - 1);
-    const range = new vscode.Range(
-      new vscode.Position(0, 0),
-      last.range.end
+    if (!editor) {
+      vscode.window.showErrorMessage('No active editor found');
+      return;
+    }
+
+    try {
+      const config = vscode.workspace.getConfiguration();
+      const cursor = editor.selection.active;
+      const last = editor.document.lineAt(editor.document.lineCount - 1);
+      const range = new vscode.Range(
+        new vscode.Position(0, 0),
+        last.range.end
+      );
+      const html = editor.document.getText();
+      const options = optionsFromVSCode(config);
+      const formattedHtml = beautifyHtml(html, options);
+
+      editor.edit(edit => {
+        edit.replace(range, formattedHtml);
+      }).then(success => {
+        if (success) {
+          const origSelection = new vscode.Selection(cursor, cursor);
+          editor.selection = origSelection;
+          vscode.window.showInformationMessage('HTML formatted successfully');
+        } else {
+          vscode.window.showErrorMessage('Failed to format HTML');
+        }
+      });
+    } catch (error) {
+      vscode.window.showErrorMessage(`Formatting error: ${error.message}`);
+    }
+  }));
+
+  formatHtmlInAsp.subscriptions.push(vscode.commands.registerCommand('formatHtmlInAsp.formatAllOpen', async () => {
+    const aspDocuments = vscode.workspace.textDocuments.filter(doc =>
+      ['asp', 'vbscript', 'javascript'].includes(doc.languageId)
     );
-    const html = vscode.window.activeTextEditor.document.getText();
-    const options = optionsFromVSCode(config);
-    const formattedHtml = beautifyHtml(html, options);
-    editor.edit(edit => {
-      edit.replace(range, formattedHtml);
-    }).then(success => {
-      if (success) {
-        const origSelection = new vscode.Selection(cursor, cursor);
-        editor.selection = origSelection;
+
+    if (aspDocuments.length === 0) {
+      vscode.window.showWarningMessage('No ASP files are currently open');
+      return;
+    }
+
+    const config = vscode.workspace.getConfiguration();
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const doc of aspDocuments) {
+      try {
+        await vscode.window.showTextDocument(doc);
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+          const last = doc.lineAt(doc.lineCount - 1);
+          const range = new vscode.Range(
+            new vscode.Position(0, 0),
+            last.range.end
+          );
+          const html = doc.getText();
+          const options = optionsFromVSCode(config);
+          const formattedHtml = beautifyHtml(html, options);
+
+          await editor.edit(edit => {
+            edit.replace(range, formattedHtml);
+          });
+          successCount++;
+        }
+      } catch (error) {
+        errorCount++;
+        console.error(`Error formatting ${doc.fileName}:`, error);
       }
-    });
+    }
+
+    if (successCount > 0) {
+      vscode.window.showInformationMessage(`Formatted ${successCount} ASP file(s) successfully${errorCount > 0 ? `, ${errorCount} failed` : ''}`);
+    } else {
+      vscode.window.showErrorMessage('Failed to format any files');
+    }
+  }));
+
+  formatHtmlInAsp.subscriptions.push(vscode.commands.registerCommand('formatHtmlInAsp.formatSelection', () => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      vscode.window.showErrorMessage('No active editor found');
+      return;
+    }
+
+    if (editor.selection.isEmpty) {
+      vscode.window.showWarningMessage('Please select text to format');
+      return;
+    }
+
+    try {
+      const config = vscode.workspace.getConfiguration();
+      const selection = editor.selection;
+      const selectedText = editor.document.getText(selection);
+      const options = optionsFromVSCode(config);
+      const formattedHtml = beautifyHtml(selectedText, options);
+
+      editor.edit(edit => {
+        edit.replace(selection, formattedHtml);
+      }).then(success => {
+        if (success) {
+          vscode.window.showInformationMessage('Selection formatted successfully');
+        } else {
+          vscode.window.showErrorMessage('Failed to format selection');
+        }
+      });
+    } catch (error) {
+      vscode.window.showErrorMessage(`Formatting error: ${error.message}`);
+    }
   }));
 }

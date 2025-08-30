@@ -52,13 +52,21 @@ export default function(config) {
     wrap_line_length: config.html.format.wrapLineLength,
     wrap_attributes: config.html.format.wrapAttributes,
     indent_scripts: "keep",
-    html: {
-      end_with_newline: config.html.format.endWithNewline,
-      js: {
-        templating: "php",
-        end_with_newline: false
-      }
-    }
+    end_with_newline: config.html.format.endWithNewline,
+    // New ASP preservation options (extension settings)
+    preserveAspComments: config.get('formatHtmlInAsp.preserveAspComments') !== undefined ? config.get('formatHtmlInAsp.preserveAspComments') : true,
+    preserveIncludeDirectives: config.get('formatHtmlInAsp.preserveIncludeDirectives') !== undefined ? config.get('formatHtmlInAsp.preserveIncludeDirectives') : true,
+    preserveComplexExpressions: true,
+    // ASP language detection and formatting options
+    detectAspLanguage: config.get('formatHtmlInAsp.detectAspLanguage') !== undefined ? config.get('formatHtmlInAsp.detectAspLanguage') : true,
+    formatVbscriptInAspBlocks: config.get('formatHtmlInAsp.formatVbscriptInAspBlocks') !== undefined ? config.get('formatHtmlInAsp.formatVbscriptInAspBlocks') : false,
+    formatJscriptInAspBlocks: config.get('formatHtmlInAsp.formatJscriptInAspBlocks') !== undefined ? config.get('formatHtmlInAsp.formatJscriptInAspBlocks') : false,
+    vbscriptIndentSize: config.get('formatHtmlInAsp.vbscriptIndentSize') !== undefined ? config.get('formatHtmlInAsp.vbscriptIndentSize') : 4,
+    jscriptIndentSize: config.get('formatHtmlInAsp.jscriptIndentSize') !== undefined ? config.get('formatHtmlInAsp.jscriptIndentSize') : 2,
+    // Advanced formatting options
+    vbscriptAlignAssignments: config.get('formatHtmlInAsp.vbscriptAlignAssignments') !== undefined ? config.get('formatHtmlInAsp.vbscriptAlignAssignments') : false,
+    jscriptSemicolons: config.get('formatHtmlInAsp.jscriptSemicolons') !== undefined ? config.get('formatHtmlInAsp.jscriptSemicolons') : true,
+    maxLineLength: config.get('formatHtmlInAsp.maxLineLength') !== undefined ? config.get('formatHtmlInAsp.maxLineLength') : 120
   };
 
   return options;

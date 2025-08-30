@@ -1,11 +1,11 @@
 {
-  "name": "format-html-in-php",
-  "displayName": "Format HTML in PHP",
-  "description": "Provides formatting for the HTML code in PHP files using JSbeautify - Works well paired with a PHP formatting extension",
+  "name": "format-html-in-classic-asp",
+  "displayName": "Format HTML in Classic ASP",
+  "description": "Provides formatting for the HTML code in Classic ASP files using JSbeautify - Works well paired with a Classic ASP formatting extension",
   "version": "1.7.0",
   "publisher": "rifi2k",
   "repository": {
-    "url": "https://github.com/RiFi2k/format-html-in-php"
+    "url": "https://github.com/RiFi2k/format-html-in-classic-asp"
   },
   "license": "Unlicense",
   "icon": "icon.png",
@@ -19,42 +19,146 @@
   ],
   "keywords": [],
   "contributes": {
+    "configuration": {
+      "title": "Format HTML in Classic ASP",
+      "properties": {
+        "formatHtmlInAsp.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable the Format HTML in Classic ASP extension"
+        },
+        "formatHtmlInAsp.formatOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Format HTML on save for Classic ASP files"
+        },
+        "formatHtmlInAsp.preserveServerBlocks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Preserve Classic ASP server-side code blocks during formatting"
+        },
+        "formatHtmlInAsp.preserveIncludeDirectives": {
+          "type": "boolean",
+          "default": true,
+          "description": "Preserve HTML Server-Side Include directives (<!--#include ...-->)"
+        },
+        "formatHtmlInAsp.preserveAspComments": {
+          "type": "boolean",
+          "default": true,
+          "description": "Preserve ASP server-side comments (<% ' ... %> and <%-- ... --%>)"
+        },
+        "formatHtmlInAsp.detectAspLanguage": {
+          "type": "boolean",
+          "default": true,
+          "description": "Auto-detect VBScript vs JScript inside ASP blocks"
+        },
+        "formatHtmlInAsp.formatVbscriptInAspBlocks": {
+          "type": "boolean",
+          "default": false,
+          "description": "Attempt to format VBScript inside <% ... %> blocks"
+        },
+        "formatHtmlInAsp.formatJscriptInAspBlocks": {
+          "type": "boolean",
+          "default": false,
+          "description": "Attempt to format JScript inside <% ... %> blocks"
+        },
+        "formatHtmlInAsp.vbscriptIndentSize": {
+          "type": "number",
+          "default": 4,
+          "description": "Indent size for VBScript when formatting ASP blocks"
+        },
+        "formatHtmlInAsp.jscriptIndentSize": {
+          "type": "number",
+          "default": 2,
+          "description": "Indent size for JScript when formatting ASP blocks"
+        },
+        "formatHtmlInAsp.vbscriptAlignAssignments": {
+          "type": "boolean",
+          "default": false,
+          "description": "Align '=' in consecutive VBScript assignments"
+        },
+        "formatHtmlInAsp.jscriptSemicolons": {
+          "type": "boolean",
+          "default": true,
+          "description": "Insert semicolons in JScript formatting when missing"
+        },
+        "formatHtmlInAsp.maxLineLength": {
+          "type": "number",
+          "default": 120,
+          "description": "Maximum line length for ASP block formatters before line breaks"
+        },
+        "formatHtmlInAsp.supportedLanguages": {
+          "type": "array",
+          "default": [
+            "asp",
+            "vbscript",
+            "javascript"
+          ],
+          "description": "List of language IDs to enable formatting for"
+        }
+      }
+    },
     "commands": [
       {
-        "command": "formatHtmlInPhp.format",
-        "title": "Format HTML in PHP"
+        "command": "formatHtmlInAsp.format",
+        "title": "Format HTML in Classic ASP"
+      },
+      {
+        "command": "formatHtmlInAsp.formatSelection",
+        "title": "Format HTML in Classic ASP (Selection)"
+      },
+      {
+        "command": "formatHtmlInAsp.formatAllOpen",
+        "title": "Format HTML in All Open Classic ASP Files"
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "formatHtmlInPhp.format",
-          "when": "editorLangId == php"
+          "command": "formatHtmlInAsp.format",
+          "when": "editorLangId =~ /^(asp|vbscript|javascript)$/"
+        },
+        {
+          "command": "formatHtmlInAsp.formatSelection",
+          "when": "editorLangId =~ /^(asp|vbscript|javascript)$/ && editorHasSelection"
+        },
+        {
+          "command": "formatHtmlInAsp.formatAllOpen",
+          "when": "true"
         }
       ],
       "editor/context": [
         {
-          "command": "formatHtmlInPhp.format",
-          "when": "editorLangId == php"
+          "command": "formatHtmlInAsp.format",
+          "when": "editorLangId =~ /^(asp|vbscript|javascript)$/"
+        },
+        {
+          "command": "formatHtmlInAsp.formatSelection",
+          "when": "editorLangId =~ /^(asp|vbscript|javascript)$/ && editorHasSelection"
         }
       ]
     },
     "keybindings": [
       {
-        "command": "formatHtmlInPhp.format",
+        "command": "formatHtmlInAsp.format",
         "key": "ctrl+alt+f",
-        "when": "editorLangId == php"
+        "when": "editorLangId =~ /^(asp|vbscript|javascript)$/"
       }
     ]
   },
   "activationEvents": [
-    "onLanguage:php"
+    "onLanguage:asp",
+    "onLanguage:vbscript",
+    "onLanguage:javascript"
   ],
   "main": "./out/extension",
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
+    "watch": "tsc -watch -p ./",
+    "test:snapshot": "npm run compile && node scripts/snapshot-test.js",
+    "test": "npm run test:snapshot",
+    "lint": "tslint -c tslint.json -p tsconfig.json"
   },
   "devDependencies": {
     "@types/node": "14.6.1",
