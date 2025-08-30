@@ -2,6 +2,8 @@
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "name": "Classic ASP (HTML)",
   "scopeName": "text.html.asp",
+  "foldingStartMarker": "(?i)^\\s*(?:<%\\s*)?(?:if\\b|select\\s+case\\b|function\\b|sub\\b|class\\b|with\\b|do\\b|while\\b|for(?:\\s+each)?\\b)",
+  "foldingStopMarker": "(?i)^\\s*(?:<%\\s*)?(?:end(?:\\s+(?:if|select|function|sub|class|with))\\b|loop\\b|wend\\b|next\\b)",
   "patterns": [
     { "include": "text.html.basic" },
     { "include": "#ssi-include" },
@@ -58,31 +60,107 @@
       "endCaptures": { "0": { "name": "punctuation.section.embedded.end.asp" } },
       "name": "meta.embedded.asp",
       "contentName": "source.vbscript.embedded.asp",
-      "patterns": [ { "include": "#vbscript-basic" } ]
+      "patterns": [ { "include": "#vbscript-blocks" }, { "include": "#vbscript-basic" } ]
+    },
+    "vbscript-blocks": {
+      "patterns": [
+        {
+          "name": "meta.block.function.vbscript.asp",
+          "begin": "(?i)^(?=\\s*)(?:<%\\s*)?function\\s+[A-Za-z_]\\w*",
+          "beginCaptures": { "0": { "name": "entity.name.function.vbscript.asp" } },
+          "end": "(?i)^(?=\\s*)(?:<%\\s*)?end\\s+function\\b",
+          "patterns": [ { "include": "#vbscript-basic" } ]
+        },
+        {
+          "name": "meta.block.sub.vbscript.asp",
+          "begin": "(?i)^(?=\\s*)(?:<%\\s*)?sub\\s+[A-Za-z_]\\w*",
+          "beginCaptures": { "0": { "name": "entity.name.function.vbscript.asp" } },
+          "end": "(?i)^(?=\\s*)(?:<%\\s*)?end\\s+sub\\b",
+          "patterns": [ { "include": "#vbscript-basic" } ]
+        },
+        {
+          "name": "meta.block.class.vbscript.asp",
+          "begin": "(?i)^(?=\\s*)(?:<%\\s*)?class\\s+[A-Za-z_]\\w*",
+          "beginCaptures": { "0": { "name": "entity.name.type.class.vbscript.asp" } },
+          "end": "(?i)^(?=\\s*)(?:<%\\s*)?end\\s+class\\b",
+          "patterns": [ { "include": "#vbscript-basic" } ]
+        },
+        {
+          "name": "meta.block.select.vbscript.asp",
+          "begin": "(?i)^(?=\\s*)(?:<%\\s*)?select\\s+case\\b",
+          "beginCaptures": { "0": { "name": "keyword.control.select.vbscript.asp" } },
+          "end": "(?i)^(?=\\s*)(?:<%\\s*)?end\\s+select\\b",
+          "patterns": [ { "include": "#vbscript-basic" } ]
+        },
+        {
+          "name": "meta.block.if.vbscript.asp",
+          "begin": "(?i)^(?=\\s*)(?:<%\\s*)?if\\b[\\s\\S]*?then\\b(?![\\s\\S]*?:)",
+          "beginCaptures": { "0": { "name": "keyword.control.if.vbscript.asp" } },
+          "end": "(?i)^(?=\\s*)(?:<%\\s*)?end\\s+if\\b",
+          "patterns": [ { "include": "#vbscript-basic" } ]
+        },
+        {
+          "name": "meta.block.with.vbscript.asp",
+          "begin": "(?i)^(?=\\s*)(?:<%\\s*)?with\\b",
+          "beginCaptures": { "0": { "name": "keyword.control.with.vbscript.asp" } },
+          "end": "(?i)^(?=\\s*)(?:<%\\s*)?end\\s+with\\b",
+          "patterns": [ { "include": "#vbscript-basic" } ]
+        },
+        {
+          "name": "meta.block.while.vbscript.asp",
+          "begin": "(?i)^(?=\\s*)(?:<%\\s*)?while\\b",
+          "beginCaptures": { "0": { "name": "keyword.control.while.vbscript.asp" } },
+          "end": "(?i)^(?=\\s*)(?:<%\\s*)?wend\\b",
+          "patterns": [ { "include": "#vbscript-basic" } ]
+        },
+        {
+          "name": "meta.block.do.vbscript.asp",
+          "begin": "(?i)^(?=\\s*)(?:<%\\s*)?do\\b",
+          "beginCaptures": { "0": { "name": "keyword.control.do.vbscript.asp" } },
+          "end": "(?i)^(?=\\s*)(?:<%\\s*)?loop\\b",
+          "patterns": [ { "include": "#vbscript-basic" } ]
+        },
+        {
+          "name": "meta.block.for.vbscript.asp",
+          "begin": "(?i)^(?=\\s*)(?:<%\\s*)?for(?:\\s+each)?\\b",
+          "beginCaptures": { "0": { "name": "keyword.control.for.vbscript.asp" } },
+          "end": "(?i)^(?=\\s*)(?:<%\\s*)?next\\b",
+          "patterns": [ { "include": "#vbscript-basic" } ]
+        }
+      ]
     },
     "vbscript-basic": {
       "patterns": [
-        {
-          "name": "comment.line.apostrophe.vbscript.asp",
-          "match": "^\\s*'[^\\n]*"
-        },
-        {
-          "name": "keyword.control.vbscript.asp",
-          "match": "\\b(?i:if|then|else|elseif|end|for|to|step|next|while|wend|do|loop|select|case|function|sub|class|with|property|exit|call|on|error|resume|redim|preserve)\\b"
-        },
-        {
-          "name": "storage.type.vbscript.asp",
-          "match": "\\b(?i:dim|set|const|public|private)\\b"
-        },
-        {
-          "name": "support.class.asp",
-          "match": "\\b(?i:Server|Response|Request|Session|Application)\\b"
-        },
-        {
-          "name": "string.quoted.double.vbscript.asp",
-          "begin": '"',
-          "end": '"'
-        }
+        { "name": "comment.line.apostrophe.vbscript.asp", "match": "^\\s*'[^\\n]*" },
+        { "name": "comment.line.rem.vbscript.asp", "match": "\\b(?i:rem)\u0020[^\\n]*" },
+
+        { "name": "keyword.control.vbscript.asp", "match": "\\b(?i:if|then|else|elseif|end|for|to|step|next|while|wend|do|loop|select|case|function|sub|class|with|property|get|let|set|exit|call|on|error|resume|redim|preserve)\\b" },
+        { "name": "storage.type.vbscript.asp", "match": "\\b(?i:dim|const|public|private|static)\\b" },
+        { "name": "keyword.other.vbscript.asp", "match": "\\b(?i:option\u0020explicit)\\b" },
+
+        { "name": "constant.language.vbscript.asp", "match": "\\b(?i:true|false|nothing|null|empty)\\b" },
+        { "name": "support.class.asp", "match": "\\b(?i:Server|Response|Request|Session|Application)\\b" },
+
+        { "name": "support.function.builtin.convert.vbscript.asp", "match": "\\b(?i:CInt|CLng|CSng|CDbl|CStr|CDate|CBool|Fix|Int|Round)\\b(?=\\s*\\()" },
+        { "name": "support.function.builtin.string.vbscript.asp", "match": "\\b(?i:Left|Right|Mid|Len|Replace|InStr|InStrRev|LCase|UCase|Trim|LTrim|RTrim|Split|Join|Chr|Asc|Space|String)\\b(?=\\s*\\()" },
+        { "name": "support.function.builtin.array.vbscript.asp", "match": "\\b(?i:Array|UBound|LBound|Erase|ReDim)\\b(?=\\s*\\()" },
+        { "name": "support.function.builtin.date.vbscript.asp", "match": "\\b(?i:Now|Date|Time|DateAdd|DateDiff|DatePart|DateSerial|TimeSerial|Year|Month|Day|Hour|Minute|Second|Weekday|WeekdayName|MonthName)\\b(?=\\s*\\()" },
+        { "name": "support.function.builtin.math.vbscript.asp", "match": "\\b(?i:Sgn|Abs|Atn|Cos|Exp|Log|Rnd|Sin|Sqr|Tan)\\b(?=\\s*\\()" },
+
+        { "name": "entity.name.function.vbscript.asp", "match": "(?i)(?<=\\bfunction|\\bsub)\\s+[A-Za-z_]\\w*" },
+
+        { "name": "constant.numeric.hex.vbscript.asp", "match": "&(?i:H)[0-9A-F]+" },
+        { "name": "constant.numeric.octal.vbscript.asp", "match": "&(?i:O)[0-7]+" },
+        { "name": "constant.numeric.decimal.vbscript.asp", "match": "\\b[0-9]+(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\\b" },
+
+        { "name": "keyword.operator.logical.vbscript.asp", "match": "\\b(?i:and|or|xor|not|eqv|imp)\\b" },
+        { "name": "keyword.operator.comparison.vbscript.asp", "match": "<=|>=|<>|=|<|>" },
+        { "name": "keyword.operator.arithmetic.vbscript.asp", "match": "\\+|\\-|\\*|/|\\\\|mod" },
+        { "name": "keyword.operator.concatenation.vbscript.asp", "match": "&" },
+
+        { "name": "variable.language.vbscript.asp", "match": "\\b(?i:me|this)\\b" },
+
+        { "name": "string.quoted.double.vbscript.asp", "begin": '"', "end": '"' }
       ]
     }
   }
