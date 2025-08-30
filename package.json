@@ -49,6 +49,11 @@
           "default": true,
           "description": "Enable/disable the Format HTML in Classic ASP extension"
         },
+        "formatHtmlInAsp.maxFileSizeMB": {
+          "type": "number",
+          "default": 5,
+          "description": "Skip formatting for files larger than this size (in MB)"
+        },
         "formatHtmlInAsp.formatOnSave": {
           "type": "boolean",
           "default": true,

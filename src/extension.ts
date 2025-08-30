@@ -50,6 +50,15 @@ class DocumentWatcher {
     reason: vscode.TextDocumentSaveReason
   ): Promise<string> {
     const config = vscode.workspace.getConfiguration();
+    // Large file guard
+    try {
+      const maxMB = config.get<number>('formatHtmlInAsp.maxFileSizeMB') ?? 5;
+      const textSizeBytes = Buffer.byteLength(vscode.window.activeTextEditor.document.getText() || '', 'utf8');
+      if (textSizeBytes > maxMB * 1024 * 1024) {
+        console.warn(`File skipped due to size > ${maxMB}MB`);
+        return '';
+      }
+    } catch {}
     const aspScopedFormat = has(config, '[asp]');
     let aspScopedFormatVal = false;
     if (aspScopedFormat) {
@@ -125,6 +134,14 @@ export function activate(formatHtmlInAsp: vscode.ExtensionContext) {
         await vscode.window.showTextDocument(doc);
         const editor = vscode.window.activeTextEditor;
         if (editor) {
+          // Large file guard for workspace formatting
+          try {
+            const maxMB = config.get<number>('formatHtmlInAsp.maxFileSizeMB') ?? 5;
+            const sizeBytes = Buffer.byteLength(doc.getText() || '', 'utf8');
+            if (sizeBytes > maxMB * 1024 * 1024) {
+              continue;
+            }
+          } catch {}
           const last = doc.lineAt(doc.lineCount - 1);
           const range = new vscode.Range(
             new vscode.Position(0, 0),

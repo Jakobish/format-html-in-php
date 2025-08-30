@@ -87,7 +87,8 @@ function runOne(inputPath, beautifyHtml, repoRoot, snapshotsDir) {
   const inputs = process.argv.slice(2);
   const files = inputs.length ? inputs : [
     path.join(repoRoot, 'aspExampleFortesting.asp'),
-    path.join(repoRoot, 'samples', 'minimal.asp')
+    path.join(repoRoot, 'samples', 'minimal.asp'),
+    path.join(repoRoot, 'samples', 'attributes.asp')
   ];
 
   let status = 0;

@@ -4,44 +4,74 @@ var beautifyHtml = require('js-beautify').html;
 import beautifyVbscript from './beautifyVbscript';
 import beautifyJscript from './beautifyJscript';
 
-// Enhanced regex patterns for ASP blocks with better nesting support
-const aspBlockPatterns = [
-  { regex: /<%@[\s\S]*?%>/g, type: 'directive' },
-  { regex: /<%![\s\S]*?%>/g, type: 'declaration' },
-  // Allow optional whitespace after <!-- for SSI include
-  { regex: /<!--\s*#include[\s\S]*?-->/g, type: 'include' },
-  { regex: /<%'[\s\S]*?%>/g, type: 'comment' },
-  { regex: /<%--[\s\S]*?--%>/g, type: 'comment' },
-  { regex: /<%=[\s\S]*?%>/g, type: 'output' },
-  { regex: /<%[\s\S]*?%>/g, type: 'server' }
-];
-
-function extractAspBlocks(text, options) {
-  const preservedBlocks = [];
+// Tokenize to safely extract ASP blocks even when '%>' appears inside strings
+function extractAspBlocks(text: string, options: any) {
+  const preservedBlocks: Array<{ placeholder: string; content: string; type: string }> = [];
   let placeholderIndex = 0;
-  let processedText = text;
+  const out: string[] = [];
+  const len = text.length;
+  let i = 0;
 
-  // Process patterns in order of specificity (most specific first)
-  aspBlockPatterns.forEach(pattern => {
-    if (shouldPreserveBlock(pattern.type, options)) {
-      processedText = processedText.replace(pattern.regex, (match) => {
-        let content = match;
-
-        // Format ASP blocks based on type and options
-        if ((pattern.type === 'server' || pattern.type === 'output') &&
-            (options.formatVbscriptInAspBlocks || options.formatJscriptInAspBlocks)) {
-          content = formatAspBlock(match, options);
-        }
-
-        const placeholder = `__ASP_BLOCK_${placeholderIndex}__`;
-        preservedBlocks.push({ placeholder, content, type: pattern.type });
-        placeholderIndex++;
-        return placeholder;
-      });
+  const pushPlaceholder = (content: string, type: string) => {
+    if (!shouldPreserveBlock(type, options)) {
+      out.push(content);
+      return;
     }
-  });
+    if ((type === 'server' || type === 'output') && (options.formatVbscriptInAspBlocks || options.formatJscriptInAspBlocks)) {
+      try { content = formatAspBlock(content, options); } catch {}
+    }
+    const placeholder = `__ASP_BLOCK_${placeholderIndex++}__`;
+    preservedBlocks.push({ placeholder, content, type });
+    out.push(placeholder);
+  };
 
-  return { processedText, preservedBlocks };
+  while (i < len) {
+    const ch = text[i];
+    // SSI include <!--#include ... --> (allow whitespace after <!--)
+    if (ch === '<' && text.substr(i, 4) === '<!--' && /^<!--\s*#include/i.test(text.substr(i, 12))) {
+      const end = text.indexOf('-->', i + 4);
+      const endPos = end >= 0 ? end + 3 : len;
+      pushPlaceholder(text.substring(i, endPos), 'include');
+      i = endPos;
+      continue;
+    }
+    // ASP comment <%-- ... --%>
+    if (ch === '<' && text.substr(i, 5) === '<%--') {
+      const end = text.indexOf('--%>', i + 4);
+      const endPos = end >= 0 ? end + 4 : len;
+      pushPlaceholder(text.substring(i, endPos), 'comment');
+      i = endPos;
+      continue;
+    }
+    // ASP server-side blocks
+    if (ch === '<' && text.substr(i, 2) === '<%') {
+      let type: 'directive' | 'output' | 'declaration' | 'server' = 'server';
+      if (text.substr(i, 3) === '<%@') type = 'directive';
+      else if (text.substr(i, 3) === '<%=') type = 'output';
+      else if (text.substr(i, 3) === '<%!') type = 'declaration';
+
+      // scan until %> while respecting quoted strings
+      let j = i + 2;
+      let inString = false;
+      let quote = '';
+      while (j < len) {
+        const c = text[j];
+        if (!inString && (c === '"' || c === "'")) { inString = true; quote = c; j++; continue; }
+        if (inString && c === quote) { inString = false; quote = ''; j++; continue; }
+        if (!inString && c === '%' && text[j + 1] === '>') { j += 2; break; }
+        j++;
+      }
+      const endPos = j;
+      pushPlaceholder(text.substring(i, endPos), type);
+      i = endPos;
+      continue;
+    }
+    // default: copy
+    out.push(ch);
+    i++;
+  }
+
+  return { processedText: out.join(''), preservedBlocks };
 }
 
 function shouldPreserveBlock(type, options) {
@@ -324,13 +354,25 @@ function reinsertAspBlocks(text: string, preservedBlocks: Array<{ placeholder: s
 
 export default function (originalText, htmlOptions) {
   try {
+    // Preserve BOM and EOLs
+    const hasBOM = originalText.charCodeAt(0) === 0xFEFF;
+    const eol = /\r\n/.test(originalText) ? '\r\n' : '\n';
+    const textNoBOM = hasBOM ? originalText.slice(1) : originalText;
+
     // First, extract and preserve all ASP blocks
-    const { processedText, preservedBlocks } = extractAspBlocks(originalText, htmlOptions);
+    const { processedText, preservedBlocks } = extractAspBlocks(textNoBOM, htmlOptions);
 
     // Check if we have any ASP blocks to format
     if (preservedBlocks.length === 0) {
       // No ASP blocks found, just format as regular HTML
-      return beautifyHtml(originalText, htmlOptions);
+      let result = beautifyHtml(textNoBOM, htmlOptions);
+      if (htmlOptions && htmlOptions.trimTrailingWhitespace !== false) {
+        result = result.replace(/[ \t]+$/gm, '');
+      }
+      if (eol === '\r\n') {
+        result = result.replace(/\r?\n/g, '\r\n');
+      }
+      return hasBOM ? '\ufeff' + result : result;
     }
 
     // Format the HTML without ASP blocks
@@ -347,12 +389,22 @@ export default function (originalText, htmlOptions) {
       finalResult = finalResult.replace(/[ \t]+$/gm, '');
     }
 
-    return finalResult;
+    if (htmlOptions && htmlOptions.trimTrailingWhitespace !== false) {
+      finalResult = finalResult.replace(/[ \t]+$/gm, '');
+    }
+    if (eol === '\r\n') {
+      finalResult = finalResult.replace(/\r?\n/g, '\r\n');
+    }
+    return hasBOM ? '\ufeff' + finalResult : finalResult;
 
   } catch (error) {
     // If extraction or formatting fails, fall back to original behavior
     console.warn('ASP block processing failed, falling back to standard formatting:', error.message);
-    return beautifyHtml(originalText, htmlOptions);
+    let result = beautifyHtml(originalText, htmlOptions);
+    if (htmlOptions && htmlOptions.trimTrailingWhitespace !== false) {
+      result = result.replace(/[ \t]+$/gm, '');
+    }
+    return result;
   }
 }
 
