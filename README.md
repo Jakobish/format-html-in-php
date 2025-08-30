@@ -1,4 +1,4 @@
-# 🎨 Format HTML in Classic ASP
+# 🎨 Format HTML in Classic ASP (VBScript)
 
 <div align="center">
 
@@ -9,7 +9,7 @@
 [![License](https://img.shields.io/badge/license-Unlicense-green.svg)](LICENSE.md)
 [![Downloads](https://img.shields.io/badge/downloads-10K+-brightgreen.svg)](https://marketplace.visualstudio.com/items?itemName=rifi2k.format-html-in-classic-asp)
 
-*Format HTML code in Classic ASP files with precision and ease*
+*VBScript-first formatter for Classic ASP: safe, fast, and workspace-ready*
 
 [📦 Install from VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=rifi2k.format-html-in-classic-asp) • [🐛 Report Issues](https://github.com/RiFi2k/format-html-in-classic-asp/issues) • [💡 Request Features](https://github.com/RiFi2k/format-html-in-classic-asp/issues)
 
@@ -38,7 +38,10 @@
 - **Smart HTML Formatting**: Uses VS Code's native HTML formatting settings
 - **Classic ASP-Compatible**: Preserves `<% %>` and `<%= %>` server-side code blocks
 - **Format on Save**: Automatic formatting when saving Classic ASP files
-- **Multi-Language Support**: Works with Classic ASP, VBScript, and JavaScript
+- **VBScript-Focused**: Tailored for Classic ASP with embedded VBScript
+- **Tokenizer-Safe**: Robust ASP block extraction (no breaking on `%>` in strings)
+- **Syntax Highlighting + Folding**: VBScript scopes, block folding for real projects
+- **Workspace Formatting**: Format all `.asp/.asa/.inc` with dry-run and progress
 
 ### 🚀 Advanced Features
 
@@ -147,8 +150,7 @@ Configure the extension behavior:
   // Supported language IDs
   "formatHtmlInAsp.supportedLanguages": [
     "asp",
-    "vbscript",
-    "javascript"
+    "vbscript"
   ]
 }
 ```
@@ -182,16 +184,14 @@ The extension intelligently detects and formats HTML in:
 | Classic ASP | `.asp` | Active Server Pages |
 | ASP Application | `.asa` | Global.asa files |
 | Include Files | `.inc` | Classic ASP include files |
-| VBScript | `.asp` | VBScript in HTML |
-| JavaScript | `.asp` | JavaScript in HTML |
+| Embedded VBScript | `.asp` | VBScript inside HTML |
 
-### Language Detection
+### Language Activation
 
 Automatically activates for:
 
 - `asp` - Classic ASP files
 - `vbscript` - VBScript embedded content
-- `javascript` - JavaScript embedded content
 
 ---
 
@@ -251,7 +251,7 @@ Automatically activates for:
 
 #### Advanced Requirements
 
-- [ ] **ASP Code Formatting**: Format VBScript/JavaScript in ASP files
+- [ ] **ASP Code Formatting**: Format VBScript in ASP files
 - [ ] **Database Integration**: SQL formatting in ASP
 - [ ] **Component Recognition**: ASP component and COM object support
 - [ ] **Session/State Management**: ASP session and application variable handling

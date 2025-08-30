@@ -1,7 +1,7 @@
 {
   "name": "format-html-in-classic-asp",
-  "displayName": "Format HTML in Classic ASP",
-  "description": "Provides formatting for the HTML code in Classic ASP files using JSbeautify - Works well paired with a Classic ASP formatting extension",
+  "displayName": "Format HTML in Classic ASP (VBScript)",
+  "description": "VBScript-focused Classic ASP HTML formatter with syntax highlighting, folding, and workspace formatting.",
   "version": "1.7.0",
   "publisher": "rifi2k",
   "repository": {
@@ -17,7 +17,17 @@
     "Programming Languages",
     "Formatters"
   ],
-  "keywords": [],
+  "keywords": [
+    "classic-asp",
+    "asp",
+    "vbscript",
+    "formatter",
+    "beautify",
+    "code-formatting",
+    "syntax-highlighting",
+    "html",
+    "vscode-extension"
+  ],
   "contributes": {
     "languages": [
       {
